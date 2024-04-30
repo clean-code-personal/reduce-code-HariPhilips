@@ -39,14 +39,7 @@ public:
 		}
 	}
 
-	int getPixelIndex()
-	{
-		for (int x = 0; x < m_rows; x++) {
-			for (int y = 0; y < m_columns; y++) {
-				return (x * m_columns + y);
-			}
-		}
-	}
+private:
 	const uint16_t m_rows;
 	const uint16_t m_columns;
 	uint8_t* m_pixels; // max 1k x 1k image
