@@ -7,7 +7,7 @@ const int PixelBrightenerFactor = 25;
 
 class Image {
 public:
-    using PixelProcessCallback = std::function < uint8_t(uint8_t, uint8_t)>;
+    using PixelProcessCallback = std::function < uint8_t(uint8_t, int)>;
 
     Image(uint16_t rows, uint16_t columns) : m_rows(rows), m_columns(columns) {
         m_pixels = new uint8_t[m_rows * m_columns];
@@ -26,18 +26,7 @@ public:
         for (int x = 0; x < m_rows; x++) {
             for (int y = 0; y < m_columns; y++) {
                 int pixelIndex = x * m_columns + y;
-                m_pixels[pixelIndex] = pixelProcessor(m_pixels[pixelIndex], PixelBrightenerFactor);
-            }
-        }
-    }
-
-    void pixelRunner(PixelProcessCallback pixelProcessor, std::shared_ptr<Image> imageToAdd) {
-        for (int x = 0; x < m_rows; x++) {
-            for (int y = 0; y < m_columns; y++) {
-                int pixelIndex = x * m_columns + y;
-                if (imageToAdd) {
-                    m_pixels[pixelIndex] = pixelProcessor(m_pixels[pixelIndex], imageToAdd->m_pixels[pixelIndex]);
-                }
+                m_pixels[pixelIndex] = pixelProcessor(m_pixels[pixelIndex], pixelIndex);
             }
         }
     }

@@ -19,10 +19,36 @@ namespace ImageProcessor
     };
 
 
-    void ExecutePixelRunner(std::shared_ptr<Image> inputImage, int& attenuatedCount, const std::shared_ptr<Image>& imageToAdd = nullptr )
-    {
-        auto BrightnerFun = [&attenuatedCount](uint8_t pixelGrayscale, uint8_t pixelGrayscaleToAdd) {
+    void BrightenWholeImage(std::shared_ptr<Image> inputImage, int& attenuatedCount) {
+        if (!inputImage->isSizeValid()) {
+            throw PixelProcessingException("Invalid image size.");
+        }
+
+        auto BrightnerFun = [&attenuatedCount](uint8_t pixelGrayscale, int) {
             uint8_t outputGrayscale = pixelGrayscale;
+            if (outputGrayscale > (255 - 25)) {
+                ++attenuatedCount;
+                outputGrayscale = 255;
+            }
+            else {
+                outputGrayscale += 25;
+            }
+
+            return outputGrayscale;
+        };
+
+        inputImage->pixelRunner(BrightnerFun);
+
+    }
+
+    void AddBrighteningImage(std::shared_ptr<Image> inputImage, const std::shared_ptr<Image>& imageToAdd, int& attenuatedCount) {
+        if (imageToAdd->m_rows != inputImage->m_rows || imageToAdd->m_columns != inputImage->m_columns) {
+            throw PixelProcessingException("Image dimensions mismatch.");
+        }
+
+        auto BrightnerFun = [&attenuatedCount, &imageToAdd](uint8_t pixelGrayscale, int index) {
+            uint8_t outputGrayscale = pixelGrayscale;
+            uint8_t pixelGrayscaleToAdd = imageToAdd->m_pixels[index];
             if (outputGrayscale + pixelGrayscaleToAdd > 255) {
                 ++attenuatedCount;
                 outputGrayscale = 255;
@@ -34,25 +60,7 @@ namespace ImageProcessor
             return outputGrayscale;
         };
 
-        if (imageToAdd)
-            inputImage->pixelRunner(BrightnerFun, imageToAdd);
-        else
-            inputImage->pixelRunner(BrightnerFun);
-    }
+        inputImage->pixelRunner(BrightnerFun);
 
-    void BrightenWholeImage(std::shared_ptr<Image> inputImage, int& attenuatedCount) {
-        if (!inputImage->isSizeValid()) {
-            throw PixelProcessingException("Invalid image size.");
-        }
-
-        ExecutePixelRunner(inputImage, attenuatedCount);
-    }
-
-    void AddBrighteningImage(std::shared_ptr<Image> inputImage, const std::shared_ptr<Image>& imageToAdd, int& attenuatedCount) {
-        if (imageToAdd->m_rows != inputImage->m_rows || imageToAdd->m_columns != inputImage->m_columns) {
-            throw PixelProcessingException("Image dimensions mismatch.");
-        }
-
-        ExecutePixelRunner(inputImage, attenuatedCount, imageToAdd);
     }
 }
