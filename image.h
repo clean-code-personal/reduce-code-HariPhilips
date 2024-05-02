@@ -22,15 +22,21 @@ public:
         return m_rows <= 1024 && m_columns <= 1024;
     }
 
-    void pixelRunner(PixelProcessCallback pixelProcessor, std::shared_ptr<Image> imageToAdd = nullptr) {
+    void pixelRunner(PixelProcessCallback pixelProcessor) {
+        for (int x = 0; x < m_rows; x++) {
+            for (int y = 0; y < m_columns; y++) {
+                int pixelIndex = x * m_columns + y;
+                m_pixels[pixelIndex] = pixelProcessor(m_pixels[pixelIndex], PixelBrightenerFactor);
+            }
+        }
+    }
+
+    void pixelRunner(PixelProcessCallback pixelProcessor, std::shared_ptr<Image> imageToAdd) {
         for (int x = 0; x < m_rows; x++) {
             for (int y = 0; y < m_columns; y++) {
                 int pixelIndex = x * m_columns + y;
                 if (imageToAdd) {
                     m_pixels[pixelIndex] = pixelProcessor(m_pixels[pixelIndex], imageToAdd->m_pixels[pixelIndex]);
-                }
-                else {
-                    m_pixels[pixelIndex] = pixelProcessor(m_pixels[pixelIndex], PixelBrightenerFactor);
                 }
             }
         }
