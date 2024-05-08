@@ -35,6 +35,20 @@ namespace brighteningtest
             Assert::AreEqual(0, attenuatedCount);
         }
 
+        TEST_METHOD(BrightensWholeImage_VerifyException)
+        {
+            try
+            {
+                auto image = std::make_shared<Image>(2048, 2048);
+                int attenuatedCount = 0;
+                BrightenWholeImage(image, attenuatedCount);
+            }
+            catch (const PixelProcessingException& e)
+            {
+                Assert::AreEqual("Invalid image size.", e.what());
+            }
+        }
+
         std::shared_ptr<Image> CreateImage(std::vector<int> pixelValues)
         {
             auto image = std::make_shared<Image>(2, 2);
