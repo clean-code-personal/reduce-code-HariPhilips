@@ -18,27 +18,25 @@ namespace ImageProcessor
         std::string m_message;
     };
 
+    uint8_t BrightenPixel(int pixelGrayscale, int& attenuatedCount) {
+        if (pixelGrayscale > 255) {
+            ++attenuatedCount;
+            return 255;
+        }
+        return pixelGrayscale;
+    }
 
     void BrightenWholeImage(std::shared_ptr<Image> inputImage, int& attenuatedCount) {
         if (!inputImage->isSizeValid()) {
             throw PixelProcessingException("Invalid image size.");
         }
 
-        auto BrightnerFun = [&attenuatedCount](uint8_t pixelGrayscale, int) {
-            uint8_t outputGrayscale = pixelGrayscale;
-            if (outputGrayscale > (255 - 25)) {
-                ++attenuatedCount;
-                outputGrayscale = 255;
-            }
-            else {
-                outputGrayscale += 25;
-            }
-
-            return outputGrayscale;
+        auto brightnerFun = [&attenuatedCount](uint8_t pixelGrayscale, int) {
+            uint8_t pixelGrayscaleToAdd = 25;
+            return BrightenPixel(pixelGrayscale + pixelGrayscaleToAdd, attenuatedCount);
         };
 
-        inputImage->pixelRunner(BrightnerFun);
-
+        inputImage->pixelRunner(brightnerFun);
     }
 
     void AddBrighteningImage(std::shared_ptr<Image> inputImage, const std::shared_ptr<Image>& imageToAdd, int& attenuatedCount) {
@@ -46,21 +44,11 @@ namespace ImageProcessor
             throw PixelProcessingException("Image dimensions mismatch.");
         }
 
-        auto BrightnerFun = [&attenuatedCount, &imageToAdd](uint8_t pixelGrayscale, int index) {
-            uint8_t outputGrayscale = pixelGrayscale;
+        auto brightnerFun = [&attenuatedCount, imageToAdd](uint8_t pixelGrayscale, int index) {
             uint8_t pixelGrayscaleToAdd = imageToAdd->m_pixels[index];
-            if (outputGrayscale + pixelGrayscaleToAdd > 255) {
-                ++attenuatedCount;
-                outputGrayscale = 255;
-            }
-            else {
-                outputGrayscale += pixelGrayscaleToAdd;
-            }
-
-            return outputGrayscale;
+            return BrightenPixel(pixelGrayscale + pixelGrayscaleToAdd, attenuatedCount);
         };
 
-        inputImage->pixelRunner(BrightnerFun);
-
+        inputImage->pixelRunner(brightnerFun);
     }
 }

@@ -9,4 +9,5 @@ int main() {
 
     int attenuatedCount = 0;
     BrightenWholeImage(image, attenuatedCount);
+    std::cout << "Attenuated " << attenuatedCount << " pixels\n";
 }
